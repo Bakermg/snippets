@@ -14,24 +14,31 @@
 
 
 // use this function to get the client location
- function getUserLoc() {
-     city = 33328;
-   navigator.geolocation.getCurrentPosition(function (position) {
-       var geocoder = new google.maps.Geocoder();
-       var latLng   = new google.maps.LatLng(
-           position.coords.latitude, position.coords.longitude);
-       geocoder.geocode({
-           'latLng': latLng
-       }, function (results, status) {
-           for (var i = 0; i < results[0].address_components.length; i++) {
-               var address = results[0].address_components[i];
-               if (address.types[0] == "postal_code") {
-                   city = address.long_name;
+//Geolocation to find users local to center map
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var city = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            map.setCenter(city);
+          }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
 
-               }
-           }
-       });
-   });
-   return false;
 
- }
+
+          clearTimeout(self.mapRequestTimeout);
+
+      }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(city);
+        infoWindow.setContent(browserHasGeolocation ?
+                              'Error: The Geolocation service failed.' :
+                              'Error: Your browser doesn\'t support geolocation.');
+      }
